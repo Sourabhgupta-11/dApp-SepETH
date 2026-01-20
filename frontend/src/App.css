@@ -1,0 +1,72 @@
+/* Full-page background */
+.app-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: #f5f5f5;
+}
+
+/* Wallet bar */
+.wallet-bar {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 12px 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+  display: flex;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+}
+
+/* Card overrides */
+.card {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #fff;
+  backdrop-filter: blur(12px);
+}
+
+.card-title,
+.form-label {
+  color: #fff;
+}
+
+/* Inputs */
+.form-control {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+}
+
+.form-control::placeholder {
+  color: #ddd;
+}
+
+.form-control:focus {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  box-shadow: none;
+}
+
+/* Table */
+.table {
+  color: #fff;
+}
+
+.table thead {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Buttons */
+.btn-primary {
+  background: #ffb347;
+  border: none;
+  color: #000;
+}
+
+.btn-primary:hover {
+  background: #ffc36d;
+}
