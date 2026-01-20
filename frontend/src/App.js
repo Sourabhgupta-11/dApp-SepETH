@@ -41,6 +41,20 @@ const [account, setAccount] = useState(null);
       }
     }
     connectWallet()
+
+    window.ethereum.on("accountsChanged", (accounts) => {
+    if (accounts.length === 0) {
+      setAccount(null);
+      setState({ provider: null, signer: null, contract: null });
+    } else {
+      setAccount(accounts[0]);
+      connectWallet();
+    }
+    });
+
+    return () => {
+    window.ethereum.removeAllListeners("accountsChanged");
+    };
   },[])
 
   return (
@@ -48,17 +62,22 @@ const [account, setAccount] = useState(null);
     <div className="container py-4">
       <div className="wallet-bar">
         {account ? (
-          <span>
-            Connected:{" "}
-            <code>
-              {account.slice(0, 6)}...{account.slice(-4)}
-            </code>
-          </span>
+          <>
+            <span>
+              Connected:{" "}
+              <code>{account.slice(0, 6)}...{account.slice(-4)}</code>
+            </span>
+            <button
+              className="btn btn-sm btn-outline-light ms-3"
+              onClick={() => window.ethereum.request({ method: "wallet_requestPermissions", params: [{ eth_accounts: {} }] })}
+            >
+              Switch Account
+            </button>
+          </>
         ) : (
           <span className="text-danger">No wallet connected</span>
         )}
       </div>
-
       <Buy state={state} />
       <Memos state={state} />
     </div>
