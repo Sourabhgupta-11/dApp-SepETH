@@ -1,20 +1,21 @@
 import { ethers } from 'ethers'
 import React, { useState } from 'react'
 
-const Buy = ({state}) => {
+const Buy = ({state,setAlert}) => {
     const [name,setName]=useState("")
     const [msg,setMsg]=useState("")
     const [amount,setAmount]=useState(0.001)
     const buyChai=async(e)=>{
         e.preventDefault()
-        console.log(`${name} - ${msg}`)
         if (!name.trim() || !msg.trim()) {
-            alert("Name and message required");
+            setAlert({type:"danger",msg:"Name and message required"});
+            setTimeout(() => setAlert(null), 3000);
             return;
         }
 
         if (!amount || Number(amount) < 0.001) {
-            alert("Minimum amount is 0.001 ETH");
+            setAlert({type:"danger",msg:"Minimum amount is 0.001 ETH"});
+            setTimeout(() => setAlert(null), 3000);
             return;
         }
 
@@ -24,12 +25,14 @@ const Buy = ({state}) => {
             value: ethers.parseEther(amount.toLocaleString()),
             });
             await tx2.wait();
-            alert("Transaction Successfull!")
+            setAlert({type:"success",msg:"Transaction Successfull!"})
+            setTimeout(() => setAlert(null), 3000);
             setName("")
             setMsg("")
         }
         catch(err){
-            alert("Transaction failed!")
+            setAlert({type:"danger",msg:"Transaction Failed!"})
+            setTimeout(() => setAlert(null), 3000);
         }
     }
   return (
