@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-6758120922c4b25beee3b386570d78da7dd6226c",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/Chai.sol": "project/contracts/Chai.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/Chai.sol": {
+        "content": "// SPDX-License-Identifier: UNLICENSED\r\npragma solidity >=0.8.2 <0.9.0;\r\n\r\ncontract chai{\r\n    address payable owner;\r\n    struct Memo{\r\n        string name;\r\n        string message;\r\n        uint timestamp;\r\n        address from;\r\n    }\r\n\r\n    Memo[] memos;\r\n\r\n    constructor(){\r\n        owner=payable(msg.sender);\r\n    }\r\n\r\n    function buyChai(string memory name, string memory message) public payable {\r\n        require(msg.value>0,\"Please pay greater than 0 ether\");\r\n        (bool success, ) = owner.call{value: msg.value}(\"\");  //send eth,do not call any function\r\n        /*(bool success,bytes memory data)=receiver.call{value:msg.value}(\r\n            abi.encodeWithSignature(\"f(uint)\", 5)  //call function f with parameter as 5 and then return data\r\n\r\n            //abi.encodeWithSignature() converts a function name + parameter types + values into low-level calldata that the EVM understands. So the EVM knows which function to run and with what arguments\r\n\r\n            //better alternative:\r\n            abi.encodeCall(Receiver.f, (5));\r\n\r\n            //how to get decoded value from data\r\n            uint value = abi.decode(data, (uint));\r\n\r\n            //if function f does not return anything then in data there is nothing (data store returned value in bytes format)\r\n        )*/\r\n        require(success, \"ETH transfer failed\");\r\n\r\n        memos.push(Memo(name,message,block.timestamp,msg.sender));\r\n    }\r\n\r\n    function getMemos() public view returns(Memo[] memory){\r\n        return memos;\r\n    }\r\n}"
+      }
+    }
+  }
+}

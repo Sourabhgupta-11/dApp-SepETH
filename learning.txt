@@ -1,0 +1,156 @@
+NOTATION: 
+    <command>: run command in terminal
+
+--------------------------------Installation process-----------------------------
+<node --version>
+<npx --version>
+
+<mkdir FullStackWeb3>
+<cd FullStackWeb3>
+<npx hardhat --init>
+    Version: “Hardhat 3 Beta”
+    Directory: current directory (".")
+    Project type: “A minimal Hardhat project” not default
+    Install dependencies: yes
+
+Hardhat Pluggins:
+<npm add --save-dev @nomicfoundation/hardhat-toolbox-viem @nomicfoundation/hardhat-ignition viem>
+
+in hardhat.config.ts file:
+    import hardhatToolboxViemPlugin from "@nomicfoundation/hardhat-toolbox-viem";
+    inside defineConfig add pluggins:[hardhatToolboxViemPlugin]
+
+----------------------Compilation-----------------------
+now write solidity code in contracts folder
+for compilation: <npx hardhat build>
+--------------------------------------------------------
+
+------------------------Testing-------------------------
+
+--------------------------------------------------------
+
+------------------------Deployment----------------------
+A. Using Ignition:
+    1. create a ignition folder & inside it a modules folder and inside it Chai.ts file 
+    2. Write code inside it (for more detail see that file)
+    3.  (a) For deploying to local hardhat network: 
+                <npx hardhat ignition deploy ignition/modules/Counter.ts>
+
+        (b) For deploying to local development node:
+                run <npx hardhat node> in one terminal  
+                    --it starts a local blockchain
+                    --Runs at: http://127.0.0.1:8545
+                    --provide 20 fre funded accounts
+                run <npx hardhat ignition deploy ignition/modules/Chai.ts --network localhost> in another terminal
+                    --network localhost means Hardhat connects to: http://127.0.0.1:8545
+                Deployment happens on your local blockchain
+                NOT on in-memory Hardhat network
+                NOT on testnet or mainnet
+                * if we run this command again it does not deploy & Prevents duplicate deployments *
+
+        (c) For deploying to live network:
+                Add this in hard.config.ts file inside define config: 
+                    networks: {
+                        sepolia: {
+                            type: "http",
+                            url: "<SEPOLIA_RPC_URL>",
+                            accounts: ["<SEPOLIA_PRIVATE_KEY>"],
+                        },
+                    },
+                run <npx hardhat ignition deploy ignition/modules/Counter.ts --network sepolia> in terminal
+
+    4. WHAT IS IGNITION:
+        Instead of:
+            manually writing deployment scripts
+            worrying about order, failures, retries
+            We describe what we want, and Ignition figures out how to do it safely.
+            This is why it’s called declarative.    
+            in old way(using scripts) we tell how to do everything. this is called as imperative
+        Ignition way (declarative)
+            We tell what should exist.
+            “I want this contract deployed, and then this function called.”
+
+    5. WHAT IS IGNITION MODULE(eg our Chai.ts file):
+        it is just a blueprint that describes which contracts should exist, which functions should be called
+        it doesnt deploy anything by itself
+        it is deployment intruction written in code
+
+    6 WHAT IS DIFFERENCE IN OLD WAY AND IGNITION WAY:
+        OLD WAY(WRITING SCRIPTS):
+        What happens at runtime:
+            Node.js starts executing the script
+            JS reaches deploy()
+            Transaction is sent immediately
+            Next line executes
+            👉 Our script is directly driving blockchain actions
+            If script crashes:
+                Deployment stops
+                No memory
+                You must restart manually
+        
+        IGNITION WAY:
+        👉 Ignition engine control execution
+        example code: const counter = m.contract("Counter");
+        What happens at runtime:
+            Node.js executes this line
+            m.contract() does NOT deploy
+            It only records an instruction:
+            “Later, deploy Counter”
+            No transaction is sent.
+
+        What happens step by step:
+            1. it execute line by line
+            2. Each m.contract, m.call registers instructions
+            3. when execution of that code finishes, Ignition engine now has a graph of steps
+            4. Ignition decides:
+                order,retries,parallelism
+            5. Ignition sends blockchain transactions
+        Blockchain interation happens after js complete execution
+
+------------------------------------------------------
+
+----------------------------------------------------------------------------------------
+
+-------------------------------------ABI ENCODING---------------------------------------
+
+The Ethereum machine (EVM) does not understand function names like: f(5)
+
+It only understands bytes.
+So before calling a function using .call(), we must:
+Convert “call function with arguments” into bytes
+That conversion is called ABI encoding.
+
+Two methods:
+
+1️⃣ abi.encodeWithSignature (OLD, manual way)
+    abi.encodeWithSignature("f(uint256)", 5)
+
+    What we are doing
+    we are telling Solidity manually:
+        “Please call a function named f that takes a uint256, and pass 5.”
+
+    Why this is risky
+    Because Solidity does not check your string.
+    If you make a mistake:
+    abi.encodeWithSignature("f(uint)", 5)  // ❌ wrong
+
+    It still compiles, but:
+    Function may not run
+    Or wrong function may be called
+    Hard to debug
+
+2️⃣ abi.encodeCall (NEW, safe way)
+    abi.encodeCall(Receiver.f, (5))
+
+    What you are doing
+    You are telling Solidity:
+    “Use the actual function f from the Receiver contract.”
+
+    Solidity now:
+    Checks function exists
+    Checks parameter types
+    Protects you from mistakes
+    You cannot accidentally pass wrong types.
+
+ABI file & bytecode of contract is in artifacts/contracts/Chai.sol/chai.json
+----------------------------------------------------------------------------------------
